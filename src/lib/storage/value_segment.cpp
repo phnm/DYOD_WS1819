@@ -10,19 +10,23 @@
 #include "type_cast.hpp"
 #include "utils/assert.hpp"
 #include "utils/performance_warning.hpp"
+#include <boost/variant/get.hpp>
 
 namespace opossum {
 
 template <typename T>
 const AllTypeVariant ValueSegment<T>::operator[](const size_t offset) const {
   PerformanceWarning("operator[] used");
-  return data.at(offset);
+  return AllTypeVariant{data.at(offset)};
 }
 
 template <typename T>
 void ValueSegment<T>::append(const AllTypeVariant& val) {
   // Implementation goes here
-  // data.push_back(val);
+  if(val.type() != typeid(T)) {
+    throw std::invalid_argument("Added value does not have type of ValueSegment!");
+  }
+  data.push_back(boost::get<T>(val));
 }
 
 template <typename T>
