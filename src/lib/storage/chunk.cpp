@@ -15,7 +15,7 @@
 namespace opossum {
 
 void Chunk::add_segment(std::shared_ptr<BaseSegment> segment) {
-  // Implementation goes here
+  _segments.push_back(segment);
 }
 
 void Chunk::append(const std::vector<AllTypeVariant>& values) {
@@ -23,18 +23,19 @@ void Chunk::append(const std::vector<AllTypeVariant>& values) {
 }
 
 std::shared_ptr<BaseSegment> Chunk::get_segment(ColumnID column_id) const {
-  // Implementation goes here
-  return nullptr;
+  return _segments.at(column_id);
 }
 
 uint16_t Chunk::column_count() const {
-  // Implementation goes here
-  return 0;
+  return _segments.size();
 }
 
 uint32_t Chunk::size() const {
-  // Implementation goes here
-  return 0;
+  auto max_size = 0u;
+  for(auto& segment : _segments) {
+    max_size = (segment->size() > max_size) ? segment->size() : max_size;
+  }
+  return max_size;
 }
 
 }  // namespace opossum
