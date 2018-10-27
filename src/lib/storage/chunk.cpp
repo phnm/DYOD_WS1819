@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 #include "base_segment.hpp"
 #include "chunk.hpp"
@@ -19,7 +20,10 @@ void Chunk::add_segment(std::shared_ptr<BaseSegment> segment) {
 }
 
 void Chunk::append(const std::vector<AllTypeVariant>& values) {
-  // Implementation goes here
+  DebugAssert(values.size() == _segments.size(), "New values have different size than number of columns!");
+  for (uint16_t i = 0; i < values.size(); i++) {
+    _segments.at(i)->append(values.at(i));
+  }
 }
 
 std::shared_ptr<BaseSegment> Chunk::get_segment(ColumnID column_id) const {
@@ -27,15 +31,15 @@ std::shared_ptr<BaseSegment> Chunk::get_segment(ColumnID column_id) const {
 }
 
 uint16_t Chunk::column_count() const {
-  return _segments.size();
+  return ColumnID{_segments.size()};
 }
 
 uint32_t Chunk::size() const {
-  auto max_size = 0u;
+  size_t max_size = 0;
   for(auto& segment : _segments) {
-    max_size = (segment->size() > max_size) ? segment->size() : max_size;
+    max_size = std::max(max_size, segment->size());
   }
-  return max_size;
+  return static_cast<uint32_t>(max_size);
 }
 
 }  // namespace opossum
