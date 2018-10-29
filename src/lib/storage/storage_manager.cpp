@@ -48,8 +48,7 @@ void StorageManager::print(std::ostream& out) const {
 }
 
 void StorageManager::reset() {
-  auto& sm = StorageManager::get();
-  sm._tables_by_name = std::map<std::string, std::shared_ptr<Table>>();
+  _tables_by_name = std::map<std::string, std::shared_ptr<Table>>();
 }
 
 }  // namespace opossum
