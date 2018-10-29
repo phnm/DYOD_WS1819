@@ -28,7 +28,7 @@ class Table : private Noncopyable {
   explicit Table(const uint32_t chunk_size = std::numeric_limits<ChunkOffset>::max() - 1) {
     _chunk_size = chunk_size;
     _chunks.push_back(std::make_shared<Chunk>());
-  };
+  }
 
   // we need to explicitly set the move constructor to default when
   // we overwrite the copy constructor

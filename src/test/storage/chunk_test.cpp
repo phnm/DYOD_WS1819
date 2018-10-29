@@ -36,27 +36,27 @@ TEST_F(StorageChunkTest, AddSegmentToChunk) {
   EXPECT_EQ(c.size(), 3u);
 }
 
- TEST_F(StorageChunkTest, AddValuesToChunk) {
-   c.add_segment(int_value_segment);
-   c.add_segment(string_value_segment);
-   c.append({2, "two"});
-   EXPECT_EQ(c.size(), 4u);
+TEST_F(StorageChunkTest, AddValuesToChunk) {
+  c.add_segment(int_value_segment);
+  c.add_segment(string_value_segment);
+  c.append({2, "two"});
+  EXPECT_EQ(c.size(), 4u);
 
-   if (IS_DEBUG) {
-     EXPECT_THROW(c.append({}), std::exception);
-     EXPECT_THROW(c.append({4, "val", 3}), std::exception);
-     EXPECT_EQ(c.size(), 4u);
-   }
- }
+  if (IS_DEBUG) {
+    EXPECT_THROW(c.append({}), std::exception);
+    EXPECT_THROW(c.append({4, "val", 3}), std::exception);
+    EXPECT_EQ(c.size(), 4u);
+  }
+}
 
- TEST_F(StorageChunkTest, RetrieveSegment) {
-   c.add_segment(int_value_segment);
-   c.add_segment(string_value_segment);
-   c.append({2, "two"});
+TEST_F(StorageChunkTest, RetrieveSegment) {
+  c.add_segment(int_value_segment);
+  c.add_segment(string_value_segment);
+  c.append({2, "two"});
 
-   auto base_segment = c.get_segment(ColumnID{0});
-   EXPECT_EQ(base_segment->size(), 4u);
- }
+  auto base_segment = c.get_segment(ColumnID{0});
+  EXPECT_EQ(base_segment->size(), 4u);
+}
 
 TEST_F(StorageChunkTest, UnknownSegmentType) {
   // Exception will only be thrown in debug builds
