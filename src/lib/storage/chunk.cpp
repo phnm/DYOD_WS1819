@@ -26,7 +26,7 @@ void Chunk::append(const std::vector<AllTypeVariant>& values) {
 
 std::shared_ptr<BaseSegment> Chunk::get_segment(ColumnID column_id) const { return _segments.at(column_id); }
 
-uint16_t Chunk::column_count() const { return ColumnID{_segments.size()}; }
+uint16_t Chunk::column_count() const { return ColumnID{static_cast<uint16_t>(_segments.size())}; }
 
 uint32_t Chunk::size() const {
   size_t max_size = 0;

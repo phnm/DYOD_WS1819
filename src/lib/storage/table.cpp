@@ -19,7 +19,7 @@ namespace opossum {
 
 void Table::add_column(const std::string& name, const std::string& type) {
   DebugAssert(_column_ids_by_name.count(name) == 0, "Column with that name already exists!");
-  auto new_column_id = ChunkID{_column_names.size()};
+  auto new_column_id = ChunkID{static_cast<uint16_t>(_column_names.size())};
   _column_names.push_back(name);
   _column_types.push_back(type);
   _column_ids_by_name[name] = new_column_id;
