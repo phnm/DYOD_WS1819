@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iomanip>
 #include <iterator>
 #include <limits>
@@ -14,27 +15,25 @@
 
 namespace opossum {
 
-void Chunk::add_segment(std::shared_ptr<BaseSegment> segment) {
-  // Implementation goes here
-}
+void Chunk::add_segment(std::shared_ptr<BaseSegment> segment) { _segments.push_back(segment); }
 
 void Chunk::append(const std::vector<AllTypeVariant>& values) {
-  // Implementation goes here
+  DebugAssert(values.size() == _segments.size(), "New values have different size than number of columns!");
+  for (uint16_t i = 0; i < values.size(); i++) {
+    _segments.at(i)->append(values.at(i));
+  }
 }
 
-std::shared_ptr<BaseSegment> Chunk::get_segment(ColumnID column_id) const {
-  // Implementation goes here
-  return nullptr;
-}
+std::shared_ptr<BaseSegment> Chunk::get_segment(ColumnID column_id) const { return _segments.at(column_id); }
 
-uint16_t Chunk::column_count() const {
-  // Implementation goes here
-  return 0;
-}
+uint16_t Chunk::column_count() const { return ColumnID{static_cast<uint16_t>(_segments.size())}; }
 
 uint32_t Chunk::size() const {
-  // Implementation goes here
-  return 0;
+  size_t max_size = 0;
+  for (auto& segment : _segments) {
+    max_size = std::max(max_size, segment->size());
+  }
+  return static_cast<uint32_t>(max_size);
 }
 
 }  // namespace opossum

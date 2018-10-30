@@ -25,7 +25,10 @@ class Table : private Noncopyable {
   // creates a table
   // the parameter specifies the maximum chunk size, i.e., partition size
   // default is the maximum chunk size minus 1. A table holds always at least one chunk
-  explicit Table(const uint32_t chunk_size = std::numeric_limits<ChunkOffset>::max() - 1);
+  explicit Table(const uint32_t chunk_size = std::numeric_limits<ChunkOffset>::max() - 1) {
+    _chunk_size = chunk_size;
+    _chunks.push_back(std::make_shared<Chunk>());
+  }
 
   // we need to explicitly set the move constructor to default when
   // we overwrite the copy constructor
@@ -77,6 +80,10 @@ class Table : private Noncopyable {
   void append(std::vector<AllTypeVariant> values);
 
  protected:
-  // Implementation goes here
+  uint32_t _chunk_size;
+  std::vector<std::shared_ptr<Chunk>> _chunks;
+  std::vector<std::string> _column_names;
+  std::vector<std::string> _column_types;
+  std::map<std::string, ColumnID> _column_ids_by_name;
 };
 }  // namespace opossum
