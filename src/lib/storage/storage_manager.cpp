@@ -5,7 +5,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <map>
 
 #include "utils/assert.hpp"
 
@@ -47,8 +46,6 @@ void StorageManager::print(std::ostream& out) const {
   }
 }
 
-void StorageManager::reset() {
-  _tables_by_name = std::map<std::string, std::shared_ptr<Table>>();
-}
+void StorageManager::reset() { _tables_by_name.clear(); }
 
 }  // namespace opossum
