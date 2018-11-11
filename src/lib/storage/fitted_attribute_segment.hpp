@@ -4,23 +4,25 @@
 #include "utils/assert.hpp"
 
 namespace opossum {
+template <typename T>
 class FittedAttributeVector : public BaseAttributeVector {
   public:
   /**
    * Creates a Dictionary segment from a given value segment.
    */
-    explicit FittedAttributeVector(const size_t segment_size, const ValueID& invalid_id) {
-      _dictionary_references = std::vector<ValueID>(segment_size, invalid_id);
+    explicit FittedAttributeVector(const size_t segment_size, const T& invalid_id) {
+      _dictionary_references = std::vector<T>(segment_size, invalid_id);
     }
 
     // returns the value id at a given position
     ValueID get(const size_t i) const {
-      return _dictionary_references.at(i);
+      return ValueID{_dictionary_references.at(i)};
     }
 
     // sets the value id at a given position
     void set(const size_t i, const ValueID value_id) {
-      _dictionary_references.at(i) = value_id;
+      DebugAssert(static_cast<uint32_t>(value_id) < std::numeric_limits<T>::max(), "ValueID is too large for type of Attribute Segment");
+      _dictionary_references.at(i) = static_cast<T>(value_id);
     };
 
     // returns the number of values
@@ -30,12 +32,11 @@ class FittedAttributeVector : public BaseAttributeVector {
 
     // returns the width of biggest value id in bytes
     AttributeVectorWidth width() const {
-        // TODO
-        return 8;
+        return AttributeVectorWidth{sizeof(T)};
     }
 
   protected:
-    std::vector<ValueID > _dictionary_references;
+    std::vector<T> _dictionary_references;
 
 };
 

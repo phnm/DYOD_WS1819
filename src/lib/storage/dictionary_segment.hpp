@@ -28,9 +28,9 @@ class DictionarySegment : public BaseSegment {
    */
   explicit DictionarySegment(const std::shared_ptr<BaseSegment>& base_segment) {
     build_dictionary(base_segment);
-
     auto num_values = base_segment->size();
-    _attribute_vector = std::make_shared<FittedAttributeVector>(num_values, INVALID_VALUE_ID);
+    initialize_attribute_vector(num_values);
+
     for (uint32_t row_index = 0; row_index < num_values; row_index++) {
       auto value = type_cast<T>((*base_segment)[row_index]);
       auto value_id = lower_bound(value);
@@ -131,6 +131,18 @@ class DictionarySegment : public BaseSegment {
     // TODO: benchmark vs not using std::set
     auto unique_values = std::set<T>(_dictionary->begin(), _dictionary->end());
     _dictionary->assign(unique_values.begin(), unique_values.end());
+  }
+
+  void initialize_attribute_vector(const size_t segment_size) {
+    auto num_distinct_entries = _dictionary->size();
+    DebugAssert(num_distinct_entries < static_cast<size_t>(INVALID_VALUE_ID), "Dictionary too large to be represented by ValueIDs.");
+    if(num_distinct_entries < std::numeric_limits<uint8_t>::max()) {
+      _attribute_vector = std::make_shared<FittedAttributeVector<uint8_t>>(segment_size, std::numeric_limits<uint8_t>::max());
+    } else if(num_distinct_entries < std::numeric_limits<uint16_t >::max()) {
+      _attribute_vector = std::make_shared<FittedAttributeVector<uint16_t>>(segment_size, std::numeric_limits<uint16_t>::max());
+    } else {
+      _attribute_vector = std::make_shared<FittedAttributeVector<uint32_t>>(segment_size, std::numeric_limits<uint32_t>::max());
+    }
   }
 };
 
