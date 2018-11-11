@@ -17,11 +17,15 @@
 
 namespace opossum {
 
+Table::Table(const uint32_t chunk_size) : _chunk_size{chunk_size} {
+  _chunks.emplace_back(std::make_shared<Chunk>());
+}
+
 void Table::add_column(const std::string& name, const std::string& type) {
-  DebugAssert(_column_ids_by_name.count(name) == 0, "Column with that name already exists!");
-  auto new_column_id = ChunkID{static_cast<uint16_t>(_column_names.size())};
-  _column_names.push_back(name);
-  _column_types.push_back(type);
+  Assert(_column_ids_by_name.count(name) == 0, "Column with that name already exists!");
+  auto new_column_id = ColumnID{static_cast<uint16_t>(_column_names.size())};
+  _column_names.emplace_back(name);
+  _column_types.emplace_back(type);
   _column_ids_by_name[name] = new_column_id;
 
   for (auto& chunk : _chunks) {
@@ -42,7 +46,7 @@ void Table::append(std::vector<AllTypeVariant> values) {
       new_chunk->add_segment(segment);
     }
     new_chunk->append(values);
-    _chunks.push_back(new_chunk);
+    _chunks.emplace_back(new_chunk);
   }
 }
 

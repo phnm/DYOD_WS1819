@@ -15,12 +15,12 @@
 
 namespace opossum {
 
-void Chunk::add_segment(std::shared_ptr<BaseSegment> segment) { _segments.push_back(segment); }
+void Chunk::add_segment(std::shared_ptr<BaseSegment> segment) { _segments.emplace_back(segment); }
 
 void Chunk::append(const std::vector<AllTypeVariant>& values) {
-  DebugAssert(values.size() == _segments.size(), "New values have different size than number of columns!");
-  for (uint16_t i = 0; i < values.size(); i++) {
-    _segments.at(i)->append(values.at(i));
+  Assert(values.size() == _segments.size(), "New values have different size than number of columns!");
+  for (uint16_t column_index = 0; column_index < values.size(); column_index++) {
+    _segments.at(column_index)->append(values.at(column_index));
   }
 }
 

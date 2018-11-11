@@ -21,7 +21,7 @@ const AllTypeVariant ValueSegment<T>::operator[](const size_t offset) const {
 
 template <typename T>
 void ValueSegment<T>::append(const AllTypeVariant& val) {
-  _data.push_back(type_cast<T>(val));
+  _data.emplace_back(type_cast<T>(val));
 }
 
 template <typename T>
