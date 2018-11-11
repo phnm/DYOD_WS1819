@@ -71,7 +71,7 @@ class DictionarySegment : public BaseSegment {
     if (value_iterator == _dictionary->end()) {
       return INVALID_VALUE_ID;
     } else {
-      return ValueID{value_iterator - _dictionary->begin()};
+      return ValueID{static_cast<uint32_t>(value_iterator - _dictionary->begin())};
     }
   }
 
@@ -85,7 +85,7 @@ class DictionarySegment : public BaseSegment {
     if (value_iterator == _dictionary->end()) {
       return INVALID_VALUE_ID;
     } else {
-      return ValueID{value_iterator - _dictionary->begin()};
+      return ValueID{static_cast<uint32_t>(value_iterator - _dictionary->begin())};
     }
   }
 

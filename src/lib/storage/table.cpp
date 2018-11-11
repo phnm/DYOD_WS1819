@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "value_segment.hpp"
-
+#include "dictionary_segment.hpp"
 #include "resolve_type.hpp"
 #include "types.hpp"
 #include "utils/assert.hpp"
@@ -76,6 +76,18 @@ Chunk& Table::get_chunk(ChunkID chunk_id) { return *_chunks.at(chunk_id); }
 
 const Chunk& Table::get_chunk(ChunkID chunk_id) const { return *_chunks.at(chunk_id); }
 
-void Table::compress_chunk(ChunkID chunk_id) { throw std::runtime_error("Implement Table::compress_chunk"); }
+void Table::compress_chunk(ChunkID chunk_id) {
+  Chunk& chunk_to_compress = get_chunk(chunk_id);
+  auto compressed_chunk = std::make_shared<Chunk>();
+  auto chunk_columns = chunk_to_compress.column_count();
+  for (ColumnID col_id{0}; col_id < chunk_columns; col_id++)
+  {
+    auto segment = chunk_to_compress.get_segment(col_id);
+    auto type_string = column_type(col_id);
+    auto dict_segment = make_shared_by_data_type<BaseSegment, DictionarySegment>(type_string, segment);
+    compressed_chunk->add_segment(dict_segment);
+  }
+  _chunks[chunk_id] = compressed_chunk;
+}
 
 }  // namespace opossum
