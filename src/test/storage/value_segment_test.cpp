@@ -47,4 +47,10 @@ TEST_F(StorageValueSegmentTest, AddValueOfDifferentType) {
   EXPECT_THROW(double_value_segment.append("Hi"), std::exception);
 }
 
+TEST_F(StorageValueSegmentTest, CheckData) {
+  string_value_segment.append("Hello");
+  EXPECT_EQ(string_value_segment.values().at(0), "Hello");
+}
+
+
 }  // namespace opossum
