@@ -13,8 +13,8 @@ class FittedAttributeVector : public BaseAttributeVector {
   /**
    * Creates a Dictionary segment from a given value segment.
    */
-  explicit FittedAttributeVector(const size_t segment_size, const T& invalid_id) {
-    _dictionary_references = std::vector<T>(segment_size, invalid_id);
+  explicit FittedAttributeVector(const size_t segment_size, const T& invalid_id): _invalid_id(invalid_id) {
+    _dictionary_references = std::vector<T>(segment_size, _invalid_id);
   }
 
   // returns the value id at a given position
@@ -22,8 +22,7 @@ class FittedAttributeVector : public BaseAttributeVector {
 
   // sets the value id at a given position
   void set(const size_t i, const ValueID value_id) {
-    DebugAssert(static_cast<uint32_t>(value_id) < std::numeric_limits<T>::max(),
-                "ValueID is too large for type of Attribute Segment");
+    DebugAssert(static_cast<uint32_t>(value_id) < _invalid_id, "ValueID is too large for type of Attribute Segment");
     _dictionary_references.at(i) = static_cast<T>(value_id);
   }
 
@@ -35,6 +34,7 @@ class FittedAttributeVector : public BaseAttributeVector {
 
  protected:
   std::vector<T> _dictionary_references;
+  const T _invalid_id;
 };
 
 }  // namespace opossum
