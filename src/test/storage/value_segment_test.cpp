@@ -52,5 +52,4 @@ TEST_F(StorageValueSegmentTest, CheckData) {
   EXPECT_EQ(string_value_segment.values().at(0), "Hello");
 }
 
-
 }  // namespace opossum
