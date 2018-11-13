@@ -45,8 +45,15 @@ class Chunk : private Noncopyable {
   // Returns the segment at a given position
   std::shared_ptr<BaseSegment> get_segment(ColumnID column_id) const;
 
+  void assert_is_writeable() const;
+
+  void set_read_only();
+
+  bool is_writeable() const;
+
  protected:
   std::vector<std::shared_ptr<BaseSegment>> _segments;
+  bool _read_only;
 };
 
 }  // namespace opossum

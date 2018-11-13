@@ -9,17 +9,15 @@
 #include <utility>
 #include <vector>
 
-#include "value_segment.hpp"
-
+#include "dictionary_segment.hpp"
 #include "resolve_type.hpp"
 #include "types.hpp"
 #include "utils/assert.hpp"
+#include "value_segment.hpp"
 
 namespace opossum {
 
-Table::Table(const uint32_t chunk_size) : _chunk_size{chunk_size} {
-  _chunks.emplace_back(std::make_shared<Chunk>());
-}
+Table::Table(const uint32_t chunk_size) : _chunk_size{chunk_size} { _chunks.emplace_back(std::make_shared<Chunk>()); }
 
 void Table::add_column(const std::string& name, const std::string& type) {
   Assert(_column_ids_by_name.count(name) == 0, "Column with that name already exists!");
@@ -76,6 +74,21 @@ Chunk& Table::get_chunk(ChunkID chunk_id) { return *_chunks.at(chunk_id); }
 
 const Chunk& Table::get_chunk(ChunkID chunk_id) const { return *_chunks.at(chunk_id); }
 
-void Table::compress_chunk(ChunkID chunk_id) { throw std::runtime_error("Implement Table::compress_chunk"); }
+void Table::compress_chunk(ChunkID chunk_id) {
+  Chunk& chunk_to_compress = get_chunk(chunk_id);
+  if (!chunk_to_compress.is_writeable()) {
+    return;
+  }
+  chunk_to_compress.set_read_only();
+  auto compressed_chunk = std::make_shared<Chunk>();
+  auto chunk_columns = chunk_to_compress.column_count();
+  for (ColumnID column_id{0}; column_id < chunk_columns; column_id++) {
+    auto segment = chunk_to_compress.get_segment(column_id);
+    auto type_string = column_type(column_id);
+    auto dict_segment = make_shared_by_data_type<BaseSegment, DictionarySegment>(type_string, segment);
+    compressed_chunk->add_segment(dict_segment);
+  }
+  _chunks[chunk_id] = compressed_chunk;
+}
 
 }  // namespace opossum
