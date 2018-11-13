@@ -72,21 +72,21 @@ TEST_F(StorageTableTest, GetColumnIdByName) {
 TEST_F(StorageTableTest, GetChunkSize) { EXPECT_EQ(t.chunk_size(), 2u); }
 
 TEST_F(StorageTableTest, CompressChunk) {
-    EXPECT_EQ(t.row_count(), 0u);
-    t.append({4, "Hello,"});
-    t.append({6, "world"});
-    t.append({3, "!"});
-    t.append({3, "!!"});
-    t.append({2, "!!"});
-    EXPECT_EQ(t.row_count(), 5u);
-    EXPECT_EQ(t.chunk_count(), 3u);
+  EXPECT_EQ(t.row_count(), 0u);
+  t.append({4, "Hello,"});
+  t.append({6, "world"});
+  t.append({3, "!"});
+  t.append({3, "!!"});
+  t.append({2, "!!"});
+  EXPECT_EQ(t.row_count(), 5u);
+  EXPECT_EQ(t.chunk_count(), 3u);
 
-    t.compress_chunk(opossum::ChunkID{1});
-    auto& chunk1 = t.get_chunk(opossum::ChunkID{1});
-    EXPECT_THROW(chunk1.append({4, "test"}), std::runtime_error);
-    auto col1 = chunk1.get_segment(opossum::ColumnID{0});
-    EXPECT_EQ(col1->size(), 2u);
-    EXPECT_THROW(col1->append(5), std::runtime_error);
+  t.compress_chunk(opossum::ChunkID{1});
+  auto& chunk1 = t.get_chunk(opossum::ChunkID{1});
+  EXPECT_THROW(chunk1.append({4, "test"}), std::runtime_error);
+  auto col1 = chunk1.get_segment(opossum::ColumnID{0});
+  EXPECT_EQ(col1->size(), 2u);
+  EXPECT_THROW(col1->append(5), std::runtime_error);
 }
 
 }  // namespace opossum

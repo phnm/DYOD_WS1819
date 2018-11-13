@@ -13,7 +13,7 @@ class FittedAttributeVector : public BaseAttributeVector {
   /**
    * Creates a Dictionary segment from a given value segment.
    */
-  explicit FittedAttributeVector(const size_t segment_size, const T& invalid_id): _invalid_id(invalid_id) {
+  explicit FittedAttributeVector(const size_t segment_size, const T& invalid_id) : _invalid_id(invalid_id) {
     _dictionary_references = std::vector<T>(segment_size, _invalid_id);
   }
 

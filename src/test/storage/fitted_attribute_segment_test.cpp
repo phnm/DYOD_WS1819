@@ -1,5 +1,6 @@
 #include <memory>
 #include <string>
+#include <limits>
 
 #include "gtest/gtest.h"
 
@@ -17,7 +18,8 @@ TEST_F(FittedAttributeSegmentTest, DataType) {
   EXPECT_EQ(uint8_vector->width(), 1);
   EXPECT_EQ(uint8_vector->get(0), opossum::ValueID{11});
 
-  uint16_vector = std::make_shared<opossum::FittedAttributeVector<uint16_t>>(1234, std::numeric_limits<uint16_t>::max());
+  uint16_vector =
+      std::make_shared<opossum::FittedAttributeVector<uint16_t>>(1234, std::numeric_limits<uint16_t>::max());
   EXPECT_EQ(uint16_vector->width(), 2);
   EXPECT_EQ(uint16_vector->get(0), opossum::ValueID{std::numeric_limits<uint16_t>::max()});
   EXPECT_EQ(uint16_vector->get(0), opossum::ValueID{static_cast<uint16_t>(std::numeric_limits<uint32_t>::max())});
