@@ -66,4 +66,14 @@ TEST_F(StorageChunkTest, UnknownSegmentType) {
   }
 }
 
+TEST_F(StorageChunkTest, ReadOnly) {
+  EXPECT_EQ(c.size(), 0u);
+  c.add_segment(int_value_segment);
+  c.append({2});
+  EXPECT_EQ((*c.get_segment(opossum::ColumnID{0}))[0], opossum::AllTypeVariant{4});
+  EXPECT_EQ((*c.get_segment(opossum::ColumnID{0}))[3], opossum::AllTypeVariant{2});
+  c.set_read_only();
+  EXPECT_THROW(c.append({3}), std::logic_error);
+}
+
 }  // namespace opossum

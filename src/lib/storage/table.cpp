@@ -76,6 +76,10 @@ const Chunk& Table::get_chunk(ChunkID chunk_id) const { return *_chunks.at(chunk
 
 void Table::compress_chunk(ChunkID chunk_id) {
   Chunk& chunk_to_compress = get_chunk(chunk_id);
+  if (!chunk_to_compress.is_writeable()) {
+    return;
+  }
+  chunk_to_compress.set_read_only();
   auto compressed_chunk = std::make_shared<Chunk>();
   auto chunk_columns = chunk_to_compress.column_count();
   for (ColumnID column_id{0}; column_id < chunk_columns; column_id++) {
