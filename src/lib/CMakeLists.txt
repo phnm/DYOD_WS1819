@@ -7,6 +7,8 @@ set(
     storage/base_segment.hpp
     storage/chunk.cpp
     storage/chunk.hpp
+    storage/dictionary_segment.hpp
+    storage/fitted_attribute_segment.hpp
     storage/storage_manager.cpp
     storage/storage_manager.hpp
     storage/table.cpp

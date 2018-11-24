@@ -25,10 +25,7 @@ class Table : private Noncopyable {
   // creates a table
   // the parameter specifies the maximum chunk size, i.e., partition size
   // default is the maximum chunk size minus 1. A table holds always at least one chunk
-  explicit Table(const uint32_t chunk_size = std::numeric_limits<ChunkOffset>::max() - 1) {
-    _chunk_size = chunk_size;
-    _chunks.push_back(std::make_shared<Chunk>());
-  }
+  explicit Table(const uint32_t chunk_size = std::numeric_limits<ChunkOffset>::max() - 1);
 
   // we need to explicitly set the move constructor to default when
   // we overwrite the copy constructor
@@ -78,6 +75,9 @@ class Table : private Noncopyable {
   // inserts a row at the end of the table
   // note this is slow and not thread-safe and should be used for testing purposes only
   void append(std::vector<AllTypeVariant> values);
+
+  // compresses a ValueColumn into a DictionaryColumn
+  void compress_chunk(ChunkID chunk_id);
 
  protected:
   uint32_t _chunk_size;

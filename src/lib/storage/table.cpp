@@ -9,19 +9,21 @@
 #include <utility>
 #include <vector>
 
-#include "value_segment.hpp"
-
+#include "dictionary_segment.hpp"
 #include "resolve_type.hpp"
 #include "types.hpp"
 #include "utils/assert.hpp"
+#include "value_segment.hpp"
 
 namespace opossum {
 
+Table::Table(const uint32_t chunk_size) : _chunk_size{chunk_size} { _chunks.emplace_back(std::make_shared<Chunk>()); }
+
 void Table::add_column(const std::string& name, const std::string& type) {
-  DebugAssert(_column_ids_by_name.count(name) == 0, "Column with that name already exists!");
-  auto new_column_id = ChunkID{static_cast<uint16_t>(_column_names.size())};
-  _column_names.push_back(name);
-  _column_types.push_back(type);
+  Assert(_column_ids_by_name.count(name) == 0, "Column with that name already exists!");
+  auto new_column_id = ColumnID{static_cast<uint16_t>(_column_names.size())};
+  _column_names.emplace_back(name);
+  _column_types.emplace_back(type);
   _column_ids_by_name[name] = new_column_id;
 
   for (auto& chunk : _chunks) {
@@ -42,7 +44,7 @@ void Table::append(std::vector<AllTypeVariant> values) {
       new_chunk->add_segment(segment);
     }
     new_chunk->append(values);
-    _chunks.push_back(new_chunk);
+    _chunks.emplace_back(new_chunk);
   }
 }
 
@@ -71,5 +73,22 @@ const std::string& Table::column_type(ColumnID column_id) const { return _column
 Chunk& Table::get_chunk(ChunkID chunk_id) { return *_chunks.at(chunk_id); }
 
 const Chunk& Table::get_chunk(ChunkID chunk_id) const { return *_chunks.at(chunk_id); }
+
+void Table::compress_chunk(ChunkID chunk_id) {
+  Chunk& chunk_to_compress = get_chunk(chunk_id);
+  if (!chunk_to_compress.is_writeable()) {
+    return;
+  }
+  chunk_to_compress.set_read_only();
+  auto compressed_chunk = std::make_shared<Chunk>();
+  auto chunk_columns = chunk_to_compress.column_count();
+  for (ColumnID column_id{0}; column_id < chunk_columns; column_id++) {
+    auto segment = chunk_to_compress.get_segment(column_id);
+    auto type_string = column_type(column_id);
+    auto dict_segment = make_shared_by_data_type<BaseSegment, DictionarySegment>(type_string, segment);
+    compressed_chunk->add_segment(dict_segment);
+  }
+  _chunks[chunk_id] = compressed_chunk;
+}
 
 }  // namespace opossum

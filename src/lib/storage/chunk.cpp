@@ -15,12 +15,16 @@
 
 namespace opossum {
 
-void Chunk::add_segment(std::shared_ptr<BaseSegment> segment) { _segments.push_back(segment); }
+void Chunk::add_segment(std::shared_ptr<BaseSegment> segment) {
+  assert_is_writeable();
+  _segments.emplace_back(segment);
+}
 
 void Chunk::append(const std::vector<AllTypeVariant>& values) {
-  DebugAssert(values.size() == _segments.size(), "New values have different size than number of columns!");
-  for (uint16_t i = 0; i < values.size(); i++) {
-    _segments.at(i)->append(values.at(i));
+  Assert(values.size() == _segments.size(), "New values have different size than number of columns!");
+  assert_is_writeable();
+  for (uint16_t column_index = 0; column_index < values.size(); column_index++) {
+    _segments.at(column_index)->append(values.at(column_index));
   }
 }
 
@@ -35,5 +39,11 @@ uint32_t Chunk::size() const {
   }
   return static_cast<uint32_t>(max_size);
 }
+
+void Chunk::assert_is_writeable() const { Assert(is_writeable(), "This chunk is currently being compressed."); }
+
+void Chunk::set_read_only() { _read_only = true; }
+
+bool Chunk::is_writeable() const { return !_read_only; }
 
 }  // namespace opossum
