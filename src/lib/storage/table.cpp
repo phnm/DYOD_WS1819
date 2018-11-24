@@ -52,18 +52,11 @@ void Table::append(std::vector<AllTypeVariant> values) {
   }
 }
 
-<<<<<<< HEAD
 uint16_t Table::column_count() const { return static_cast<uint16_t>(_column_names.size()); }
-=======
+
 void Table::create_new_chunk() {
   // Implementation goes here
 }
-
-uint16_t Table::column_count() const {
-  // Implementation goes here
-  return 0;
-}
->>>>>>> 1dc4e91a3598f78b8784022b694788dc29aae132
 
 uint64_t Table::row_count() const {
   uint64_t num_rows = 0;
