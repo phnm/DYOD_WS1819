@@ -19,6 +19,10 @@ namespace opossum {
 
 Table::Table(const uint32_t chunk_size) : _chunk_size{chunk_size} { _chunks.emplace_back(std::make_shared<Chunk>()); }
 
+void Table::add_column_definition(const std::string& name, const std::string& type) {
+  // Implementation goes here
+}
+
 void Table::add_column(const std::string& name, const std::string& type) {
   Assert(_column_ids_by_name.count(name) == 0, "Column with that name already exists!");
   auto new_column_id = ColumnID{static_cast<uint16_t>(_column_names.size())};
@@ -48,7 +52,18 @@ void Table::append(std::vector<AllTypeVariant> values) {
   }
 }
 
+<<<<<<< HEAD
 uint16_t Table::column_count() const { return static_cast<uint16_t>(_column_names.size()); }
+=======
+void Table::create_new_chunk() {
+  // Implementation goes here
+}
+
+uint16_t Table::column_count() const {
+  // Implementation goes here
+  return 0;
+}
+>>>>>>> 1dc4e91a3598f78b8784022b694788dc29aae132
 
 uint64_t Table::row_count() const {
   uint64_t num_rows = 0;
@@ -89,6 +104,10 @@ void Table::compress_chunk(ChunkID chunk_id) {
     compressed_chunk->add_segment(dict_segment);
   }
   _chunks[chunk_id] = compressed_chunk;
+}
+
+void emplace_chunk(Chunk chunk) {
+  // Implementation goes here
 }
 
 }  // namespace opossum
