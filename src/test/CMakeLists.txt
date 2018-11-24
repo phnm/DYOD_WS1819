@@ -17,6 +17,7 @@ set(
     storage/dictionary_segment_test.cpp
     storage/fitted_attribute_segment_test.cpp
     storage/reference_segment_test.cpp
+    storage/fitted_attribute_segment_test.cpp
     storage/storage_manager_test.cpp
     storage/table_test.cpp
     storage/value_segment_test.cpp

@@ -18,6 +18,7 @@ set(
     storage/dictionary_segment.hpp
     storage/fitted_attribute_segment.hpp
     storage/reference_segment.hpp
+    storage/fitted_attribute_segment.hpp
     storage/storage_manager.cpp
     storage/storage_manager.hpp
     storage/table.cpp
