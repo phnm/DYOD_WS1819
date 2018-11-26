@@ -95,8 +95,8 @@ TEST_F(StorageDictionarySegmentTest, ValueRetrieval) {
   EXPECT_EQ(dc_int->get(57), 57);
 
   EXPECT_EQ(dc_int->value_by_value_id(opossum::ValueID{23}), 23);
-  EXPECT_EQ(dc_int->value_by_value_id(opossum::ValueID{123}), 23);
-  EXPECT_EQ(dc_int->value_by_value_id(opossum::ValueID{223}), 23);
+  EXPECT_EQ(dc_int->value_by_value_id(opossum::ValueID{56}), 56);
+  EXPECT_EQ(dc_int->value_by_value_id(opossum::ValueID{99}), 99);
 
   EXPECT_EQ((*dc_int)[23], opossum::AllTypeVariant{23});
   EXPECT_EQ((*dc_int)[123], opossum::AllTypeVariant{23});

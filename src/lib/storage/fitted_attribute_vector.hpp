@@ -22,7 +22,7 @@ class FittedAttributeVector : public BaseAttributeVector {
 
   // sets the value id at a given position
   void set(const size_t i, const ValueID value_id) {
-    DebugAssert(static_cast<uint32_t>(value_id) < _invalid_id, "ValueID is too large for type of Attribute Segment");
+    DebugAssert(static_cast<T>(value_id) < _invalid_id, "ValueID is too large for type of Attribute Segment");
     _dictionary_references.at(i) = static_cast<T>(value_id);
   }
 
