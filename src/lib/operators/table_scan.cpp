@@ -47,9 +47,9 @@ template <typename T>
 void TableScan::TableScanImpl<T>::_compare_value_segment(std::shared_ptr<ValueSegment<T>> segment,
                                                          const ScanType& scan_type, const T& search_value,
                                                          std::shared_ptr<PosList> pos_list, ChunkID chunk_id) {
-  for (ChunkOffset row_index{0}; row_index < segment->size(); row_index++) {
-    // TODO: use data vector directly
-    auto value = type_cast<T>(segment->values()[row_index]);
+  const auto& data = segment->values();
+  for (ChunkOffset row_index{0}; row_index < data.size(); row_index++) {
+    auto value = data[row_index];
     if (compare(scan_type, value, search_value)) {
       pos_list->emplace_back(RowID{chunk_id, row_index});
     }
