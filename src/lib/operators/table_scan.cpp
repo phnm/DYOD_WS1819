@@ -2,6 +2,9 @@
 
 #include <memory>
 
+#include "resolve_type.hpp"
+#include "storage/fitted_attribute_vector.hpp"
+
 namespace opossum {
 
 template <typename T>
@@ -20,7 +23,7 @@ bool compare(const ScanType& scan_type, const T left, const T right) {
     case ScanType::OpGreaterThanEquals:
       return left >= right;
     default:
-      throw std::logic_error("Unknown scan operator");
+      Fail("Unknown scan operator");
   }
 }
 
@@ -42,8 +45,8 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
 
 template <typename T>
 void TableScan::TableScanImpl<T>::_compare_value_segment(std::shared_ptr<ValueSegment<T>> segment,
-                                                         const ScanType& scan_type, const T search_value,
-                                                         std::shared_ptr<PosList> pos_list, const ChunkID chunk_id) {
+                                                         const ScanType& scan_type, const T& search_value,
+                                                         std::shared_ptr<PosList> pos_list, ChunkID chunk_id) {
   for (ChunkOffset row_index{0}; row_index < segment->size(); row_index++) {
     // TODO: use data vector directly
     auto value = type_cast<T>(segment->values()[row_index]);
@@ -55,9 +58,9 @@ void TableScan::TableScanImpl<T>::_compare_value_segment(std::shared_ptr<ValueSe
 
 template <typename T>
 void TableScan::TableScanImpl<T>::_compare_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment,
-                                                              const ScanType& scan_type, const T search_value,
+                                                              const ScanType& scan_type, const T& search_value,
                                                               std::shared_ptr<PosList> pos_list,
-                                                              const ChunkID chunk_id) {
+                                                              ChunkID chunk_id) {
   for (ChunkOffset row_index{0}; row_index < segment->size(); row_index++) {
     // TODO: don't uncompress the whole segment
     auto value = segment->get(row_index);
@@ -69,9 +72,9 @@ void TableScan::TableScanImpl<T>::_compare_dictionary_segment(std::shared_ptr<Di
 
 template <typename T>
 void TableScan::TableScanImpl<T>::_compare_reference_segment(std::shared_ptr<ReferenceSegment> segment,
-                                                             const ScanType& scan_type, const T search_value,
+                                                             const ScanType& scan_type, const T& search_value,
                                                              std::shared_ptr<PosList> pos_list,
-                                                             const ChunkID chunk_id) {
+                                                             ChunkID chunk_id) {
   for (ChunkOffset row_index{0}; row_index < segment->size(); row_index++) {
     // TODO: there is a faster way using pos_list
     auto value = type_cast<T>((*segment)[row_index]);
@@ -110,7 +113,7 @@ std::shared_ptr<const Table> TableScan::TableScanImpl<T>::on_execute(TableScan& 
       reference_reference_segment = true;
       referenced_table = reference_segment->referenced_table();
     } else {
-      throw std::logic_error("Column and search value have differing data types");
+      Fail("Column and search value have differing data types");
     }
   }
 

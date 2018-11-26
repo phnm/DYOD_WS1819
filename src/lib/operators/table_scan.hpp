@@ -7,9 +7,7 @@
 
 #include "abstract_operator.hpp"
 #include "all_type_variant.hpp"
-#include "resolve_type.hpp"
 #include "storage/dictionary_segment.hpp"
-#include "storage/fitted_attribute_vector.hpp"
 #include "storage/reference_segment.hpp"
 #include "storage/table.hpp"
 #include "storage/value_segment.hpp"
@@ -43,17 +41,17 @@ class TableScan : public AbstractOperator {
   };
 
   template <typename T>
-  class TableScanImpl : BaseTableScanImpl {
+  class TableScanImpl : public BaseTableScanImpl {
    public:
     std::shared_ptr<const Table> on_execute(TableScan& scan_operator) override;
 
    protected:
     void _compare_value_segment(std::shared_ptr<ValueSegment<T>> segment, const ScanType& scan_type,
-                                const T search_value, std::shared_ptr<PosList> pos_list, const ChunkID chunk_id);
+                                const T& search_value, std::shared_ptr<PosList> pos_list, ChunkID chunk_id);
     void _compare_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const ScanType& scan_type,
-                                     const T search_value, std::shared_ptr<PosList> pos_list, const ChunkID chunk_id);
+                                     const T& search_value, std::shared_ptr<PosList> pos_list, ChunkID chunk_id);
     void _compare_reference_segment(std::shared_ptr<ReferenceSegment> segment, const ScanType& scan_type,
-                                    const T search_value, std::shared_ptr<PosList> pos_list, const ChunkID chunk_id);
+                                    const T& search_value, std::shared_ptr<PosList> pos_list, ChunkID chunk_id);
   };
 };
 
