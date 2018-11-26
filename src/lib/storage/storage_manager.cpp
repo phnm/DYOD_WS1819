@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <cstdio>
 
 #include "utils/assert.hpp"
 
@@ -15,17 +16,17 @@ StorageManager& StorageManager::get() {
 }
 
 void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) {
-  Assert(_tables_by_name.count(name) == 0, "Table with that name already exists!");
+  Assert(_tables_by_name.find(name) == _tables_by_name.end(), "Table with that name already exists!");
   _tables_by_name.emplace(std::make_pair(name, table));
 }
 
 void StorageManager::drop_table(const std::string& name) {
-  DebugAssert(_tables_by_name.count(name) == 1, "Table does not exist!");
+  DebugAssert(_tables_by_name.find(name) != _tables_by_name.end(), "Table does not exist!");
   _tables_by_name.erase(name);
 }
 
 std::shared_ptr<Table> StorageManager::get_table(const std::string& name) const {
-  Assert(_tables_by_name.count(name) == 1, "Table does not exist!");
+  Assert(_tables_by_name.find(name) != _tables_by_name.end(), "Table does not exist!");
   return _tables_by_name.find(name)->second;
 }
 

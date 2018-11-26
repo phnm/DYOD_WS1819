@@ -6,6 +6,7 @@ set(
     operators/abstract_operator.cpp
     operators/abstract_operator.hpp
     operators/get_table.hpp
+    operators/get_table.cpp
     operators/print.cpp
     operators/print.hpp
     operators/table_scan.hpp
