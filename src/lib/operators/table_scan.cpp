@@ -125,7 +125,7 @@ std::shared_ptr<const Table> TableScan::TableScanImpl<T>::on_execute(TableScan& 
     auto reference_segment = std::make_shared<ReferenceSegment>(segment_table, column_id, result_row_ids);
     chunk->add_segment(reference_segment);
   }
-  result_table->emplace_chunk(chunk)
+  result_table->emplace_chunk(chunk);
 
       return result_table;
 }
