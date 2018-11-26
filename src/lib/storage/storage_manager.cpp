@@ -1,10 +1,10 @@
 #include "storage_manager.hpp"
 
+#include <cstdio>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-#include <cstdio>
 
 #include "utils/assert.hpp"
 

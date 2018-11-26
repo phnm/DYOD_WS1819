@@ -1,35 +1,38 @@
 #include "table_scan.hpp"
 
+#include <memory>
+
 namespace opossum {
 
 template <typename T>
 bool compare(const ScanType& scan_type, const T left, const T right) {
-  switch(scan_type) {
-    case ScanType::OpEquals: return left == right;
-    case ScanType::OpNotEquals: return left != right;
-    case ScanType::OpLessThan: return left < right;
-    case ScanType::OpLessThanEquals: return left <= right;
-    case ScanType::OpGreaterThan: return left > right;
-    case ScanType::OpGreaterThanEquals: return left >= right;
-    default: throw std::logic_error("Unknown scan operator");
+  switch (scan_type) {
+    case ScanType::OpEquals:
+      return left == right;
+    case ScanType::OpNotEquals:
+      return left != right;
+    case ScanType::OpLessThan:
+      return left < right;
+    case ScanType::OpLessThanEquals:
+      return left <= right;
+    case ScanType::OpGreaterThan:
+      return left > right;
+    case ScanType::OpGreaterThanEquals:
+      return left >= right;
+    default:
+      throw std::logic_error("Unknown scan operator");
   }
 }
 
 TableScan::TableScan(const std::shared_ptr<const AbstractOperator> in, ColumnID column_id, const ScanType scan_type,
-                     const AllTypeVariant search_value) : AbstractOperator(in), _column_id(column_id),
-                     _scan_type(scan_type), _search_value(search_value) {}
+                     const AllTypeVariant search_value)
+    : AbstractOperator(in), _column_id(column_id), _scan_type(scan_type), _search_value(search_value) {}
 
-ColumnID TableScan::column_id() const {
-  return _column_id;
-}
+ColumnID TableScan::column_id() const { return _column_id; }
 
-ScanType TableScan::scan_type() const {
-  return _scan_type;
-}
+ScanType TableScan::scan_type() const { return _scan_type; }
 
-const AllTypeVariant& TableScan::search_value() const {
-  return _search_value;
-}
+const AllTypeVariant& TableScan::search_value() const { return _search_value; }
 
 std::shared_ptr<const Table> TableScan::_on_execute() {
   auto& column_type = _input_table_left()->column_type(_column_id);
@@ -38,7 +41,9 @@ std::shared_ptr<const Table> TableScan::_on_execute() {
 }
 
 template <typename T>
-void TableScan::TableScanImpl<T>::_compare_value_segment(std::shared_ptr<ValueSegment<T>> segment, const ScanType& scan_type, const T search_value, std::shared_ptr<PosList> pos_list, const ChunkID chunk_id) {
+void TableScan::TableScanImpl<T>::_compare_value_segment(std::shared_ptr<ValueSegment<T>> segment,
+                                                         const ScanType& scan_type, const T search_value,
+                                                         std::shared_ptr<PosList> pos_list, const ChunkID chunk_id) {
   for (ChunkOffset row_index{0}; row_index < segment->size(); row_index++) {
     // TODO: use data vector directly
     auto value = type_cast<T>(segment->values()[row_index]);
@@ -49,7 +54,10 @@ void TableScan::TableScanImpl<T>::_compare_value_segment(std::shared_ptr<ValueSe
 }
 
 template <typename T>
-void TableScan::TableScanImpl<T>::_compare_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const ScanType& scan_type, const T search_value, std::shared_ptr<PosList> pos_list, const ChunkID chunk_id) {
+void TableScan::TableScanImpl<T>::_compare_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment,
+                                                              const ScanType& scan_type, const T search_value,
+                                                              std::shared_ptr<PosList> pos_list,
+                                                              const ChunkID chunk_id) {
   for (ChunkOffset row_index{0}; row_index < segment->size(); row_index++) {
     // TODO: don't uncompress the whole segment
     auto value = segment->get(row_index);
@@ -60,7 +68,10 @@ void TableScan::TableScanImpl<T>::_compare_dictionary_segment(std::shared_ptr<Di
 }
 
 template <typename T>
-void TableScan::TableScanImpl<T>::_compare_reference_segment(std::shared_ptr<ReferenceSegment> segment, const ScanType& scan_type, const T search_value, std::shared_ptr<PosList> pos_list, const ChunkID chunk_id) {
+void TableScan::TableScanImpl<T>::_compare_reference_segment(std::shared_ptr<ReferenceSegment> segment,
+                                                             const ScanType& scan_type, const T search_value,
+                                                             std::shared_ptr<PosList> pos_list,
+                                                             const ChunkID chunk_id) {
   for (ChunkOffset row_index{0}; row_index < segment->size(); row_index++) {
     // TODO: there is a faster way using pos_list
     auto value = type_cast<T>((*segment)[row_index]);
@@ -92,7 +103,8 @@ std::shared_ptr<const Table> TableScan::TableScanImpl<T>::on_execute(TableScan& 
     if (value_segment != nullptr) {
       _compare_value_segment(value_segment, scan_operator.scan_type(), search_value, result_row_ids, chunk_id);
     } else if (dictionary_segment != nullptr) {
-      _compare_dictionary_segment(dictionary_segment, scan_operator.scan_type(), search_value, result_row_ids, chunk_id);
+      _compare_dictionary_segment(dictionary_segment, scan_operator.scan_type(), search_value, result_row_ids,
+                                  chunk_id);
     } else if (reference_segment != nullptr) {
       _compare_reference_segment(reference_segment, scan_operator.scan_type(), search_value, result_row_ids, chunk_id);
       reference_reference_segment = true;
@@ -115,7 +127,7 @@ std::shared_ptr<const Table> TableScan::TableScanImpl<T>::on_execute(TableScan& 
   }
   result_table->emplace_chunk(chunk)
 
-  return result_table;
+      return result_table;
 }
 
 EXPLICITLY_INSTANTIATE_DATA_TYPES(TableScan::TableScanImpl);
