@@ -10,7 +10,7 @@
 #include "all_type_variant.hpp"
 #include "base_attribute_vector.hpp"
 #include "base_segment.hpp"
-#include "fitted_attribute_segment.hpp"
+#include "fitted_attribute_vector.hpp"
 #include "type_cast.hpp"
 #include "types.hpp"
 
@@ -44,11 +44,11 @@ class DictionarySegment : public BaseSegment {
 
   // return the value at a certain position. If you want to write efficient operators, back off!
   const AllTypeVariant operator[](const size_t i) const override {
-    return AllTypeVariant{_dictionary->at(_attribute_vector->get(i))};
+    return AllTypeVariant{get(i)};
   }
 
   // return the value at a certain position.
-  const T get(const size_t i) const { return _dictionary->at(i); }
+  const T get(const size_t i) const { return (*_dictionary)[_attribute_vector->get(i)]; }
 
   // dictionary segments are immutable
   void append(const AllTypeVariant&) override {
@@ -62,7 +62,7 @@ class DictionarySegment : public BaseSegment {
   std::shared_ptr<const BaseAttributeVector> attribute_vector() const { return _attribute_vector; }
 
   // return the value represented by a given ValueID
-  const T& value_by_value_id(ValueID value_id) const { return _dictionary->at(_attribute_vector->get(value_id)); }
+  const T& value_by_value_id(ValueID value_id) const { return _dictionary->at(value_id); }
 
   // returns the first value ID that refers to a value >= the search value
   // returns INVALID_VALUE_ID if all values are smaller than the search value

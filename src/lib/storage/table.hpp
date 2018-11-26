@@ -90,6 +90,8 @@ class Table : private Noncopyable {
  protected:
   uint32_t _chunk_size;
   std::vector<std::shared_ptr<Chunk>> _chunks;
+  std::vector<bool> _chunk_compression_status;
+  std::mutex _chunk_compression_mutex;
   std::vector<std::string> _column_names;
   std::vector<std::string> _column_types;
   std::map<std::string, ColumnID> _column_ids_by_name;

@@ -17,7 +17,10 @@
 
 namespace opossum {
 
-Table::Table(const uint32_t chunk_size) : _chunk_size{chunk_size} { _chunks.emplace_back(std::make_shared<Chunk>()); }
+Table::Table(const uint32_t chunk_size) : _chunk_size{chunk_size} {
+  _chunks.emplace_back(std::make_shared<Chunk>());
+  _chunk_compression_status.emplace_back(false);
+}
 
 void Table::add_column_definition(const std::string& name, const std::string& type) {
   // Implementation goes here
@@ -37,7 +40,7 @@ void Table::add_column(const std::string& name, const std::string& type) {
 }
 
 void Table::append(std::vector<AllTypeVariant> values) {
-  auto last_chunk = _chunks.back();
+  auto& last_chunk = _chunks.back();
   if (last_chunk->size() < _chunk_size) {
     last_chunk->append(values);
   } else {
@@ -49,6 +52,7 @@ void Table::append(std::vector<AllTypeVariant> values) {
     }
     new_chunk->append(values);
     _chunks.emplace_back(new_chunk);
+    _chunk_compression_status.emplace_back(false);
   }
 }
 
@@ -83,11 +87,15 @@ Chunk& Table::get_chunk(ChunkID chunk_id) { return *_chunks.at(chunk_id); }
 const Chunk& Table::get_chunk(ChunkID chunk_id) const { return *_chunks.at(chunk_id); }
 
 void Table::compress_chunk(ChunkID chunk_id) {
-  Chunk& chunk_to_compress = get_chunk(chunk_id);
-  if (!chunk_to_compress.is_writeable()) {
-    return;
+  Assert(chunk_id < _chunks.size() - 1, "Only immutable chunks can be compressed (last chunk ist mutable).");
+  {
+    auto guard = std::lock_guard(_chunk_compression_mutex);
+    if (_chunk_compression_status[chunk_id]) {
+      return;
+    }
+    _chunk_compression_status[chunk_id] = true;
   }
-  chunk_to_compress.set_read_only();
+  Chunk& chunk_to_compress = get_chunk(chunk_id);
   auto compressed_chunk = std::make_shared<Chunk>();
   auto chunk_columns = chunk_to_compress.column_count();
   for (ColumnID column_id{0}; column_id < chunk_columns; column_id++) {
