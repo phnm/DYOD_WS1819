@@ -18,7 +18,7 @@ class FittedAttributeVector : public BaseAttributeVector {
   }
 
   // returns the value id at a given position
-  ValueID get(const size_t i) const { return ValueID{_dictionary_references.at(i)}; }
+  ValueID get(const size_t i) const { return ValueID{_dictionary_references[i]}; }
 
   // sets the value id at a given position
   void set(const size_t i, const ValueID value_id) {

@@ -42,7 +42,6 @@ TEST_F(FittedAttributeVectorTest, InsertAndRead) {
 
   EXPECT_EQ(uint8_vector->get(0), opossum::ValueID{6});
   EXPECT_EQ(uint8_vector->get(3), opossum::ValueID{4});
-  EXPECT_THROW(uint8_vector->get(12), std::out_of_range);
 
   if (IS_DEBUG) {
     EXPECT_THROW(uint8_vector->set(4, opossum::ValueID{12}), std::logic_error);

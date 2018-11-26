@@ -51,7 +51,8 @@ class TableScan : public AbstractOperator {
     void _compare_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment, const ScanType& scan_type,
                                      const T& search_value, std::shared_ptr<PosList> pos_list, ChunkID chunk_id);
     void _compare_reference_segment(std::shared_ptr<ReferenceSegment> segment, const ScanType& scan_type,
-                                    const T& search_value, std::shared_ptr<PosList> pos_list, ChunkID chunk_id);
+                                    const T& search_value, std::shared_ptr<PosList> pos_list, ChunkID chunk_id,
+                                    ColumnID column_id);
   };
 };
 
