@@ -17,21 +17,23 @@
 
 namespace opossum {
 
-Table::Table(const uint32_t chunk_size) : _chunk_size{chunk_size} {
-  _chunks.emplace_back(std::make_shared<Chunk>());
-  _chunk_compression_status.emplace_back(false);
-}
+Table::Table(const uint32_t chunk_size) : _chunk_size{chunk_size} { create_new_chunk(); }
 
 void Table::add_column_definition(const std::string& name, const std::string& type) {
-  // Implementation goes here
+  Assert(_column_ids_by_name.count(name) == 0, "Column with that name already exists!");
+  Assert(row_count() == 0, "Columns can only be appended to an empty table!");
+  _column_ids_by_name.emplace(std::make_pair(name, ColumnID{static_cast<uint16_t>(_column_names.size())}));
+  _column_names.emplace_back(name);
+  _column_types.emplace_back(type);
 }
 
 void Table::add_column(const std::string& name, const std::string& type) {
   Assert(_column_ids_by_name.count(name) == 0, "Column with that name already exists!");
+  Assert(row_count() == 0, "Columns can only be appended to an empty table!");
   auto new_column_id = ColumnID{static_cast<uint16_t>(_column_names.size())};
   _column_names.emplace_back(name);
   _column_types.emplace_back(type);
-  _column_ids_by_name[name] = new_column_id;
+  _column_ids_by_name.emplace(std::make_pair(name, new_column_id));
 
   for (auto& chunk : _chunks) {
     auto new_segment = make_shared_by_data_type<BaseSegment, ValueSegment>(type);
@@ -44,22 +46,21 @@ void Table::append(std::vector<AllTypeVariant> values) {
   if (last_chunk->size() < _chunk_size) {
     last_chunk->append(values);
   } else {
-    auto new_chunk = std::make_shared<Chunk>();
-
-    for (auto& column_type : _column_types) {
-      auto segment = make_shared_by_data_type<BaseSegment, ValueSegment>(column_type);
-      new_chunk->add_segment(segment);
-    }
-    new_chunk->append(values);
-    _chunks.emplace_back(new_chunk);
-    _chunk_compression_status.emplace_back(false);
+    create_new_chunk();
+    _chunks.back()->append(values);
   }
 }
 
 uint16_t Table::column_count() const { return static_cast<uint16_t>(_column_names.size()); }
 
 void Table::create_new_chunk() {
-  // Implementation goes here
+  auto new_chunk = std::make_shared<Chunk>();
+
+  for (const auto& column_type : _column_types) {
+    const auto segment = make_shared_by_data_type<BaseSegment, ValueSegment>(column_type);
+    new_chunk->add_segment(segment);
+  }
+  emplace_chunk(new_chunk);
 }
 
 uint64_t Table::row_count() const {
@@ -107,8 +108,13 @@ void Table::compress_chunk(ChunkID chunk_id) {
   _chunks[chunk_id] = compressed_chunk;
 }
 
-void emplace_chunk(Chunk chunk) {
-  // Implementation goes here
+void Table::emplace_chunk(std::shared_ptr<Chunk> chunk) {
+  if (!_chunks.empty() && _chunks.back()->size() == 0) {
+    _chunks.back() = chunk;
+  } else {
+    _chunks.emplace_back(chunk);
+    _chunk_compression_status.emplace_back(false);
+  }
 }
 
 }  // namespace opossum
