@@ -24,7 +24,8 @@ bool compare(const ScanType& scan_type, const T left, const T right) {
     case ScanType::OpGreaterThanEquals:
       return left >= right;
     default:
-      Fail("Unknown scan operator");
+      // Using Fail instead causes errors with gcc7
+      throw std::logic_error("Unknown scan operator");
   }
 }
 
