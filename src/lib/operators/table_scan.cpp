@@ -69,7 +69,6 @@ void TableScan::TableScanImpl<T>::_compare_dictionary_segment(std::shared_ptr<Di
   auto lower_bound = segment->lower_bound(search_value);
   auto upper_bound = segment->upper_bound(search_value);
 
-  // TODO: append vectors to one another (std::vector::insert) and use std::for_each to transform vectors
   switch (scan_type) {
     case ScanType::OpEquals:
       // if there is no lower bound break since all values are smaller than the search value
