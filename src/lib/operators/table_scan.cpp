@@ -59,12 +59,10 @@ void TableScan::TableScanImpl<T>::_compare_value_segment(std::shared_ptr<ValueSe
   }
 }
 
-
 template <typename T>
 void TableScan::TableScanImpl<T>::_compare_dictionary_segment(std::shared_ptr<DictionarySegment<T>> segment,
                                                               const ScanType& scan_type, const T& search_value,
-                                                              std::shared_ptr<PosList> pos_list,
-                                                              ChunkID chunk_id) {
+                                                              std::shared_ptr<PosList> pos_list, ChunkID chunk_id) {
   auto attribute_vector = segment->attribute_vector();
   auto lower_bound = segment->lower_bound(search_value);
   auto upper_bound = segment->upper_bound(search_value);
@@ -185,15 +183,13 @@ void TableScan::TableScanImpl<T>::_compare_dictionary_segment(std::shared_ptr<Di
     default:
       Fail("Unknown scan operator");
   }
-
 }
 
 template <typename T>
 void TableScan::TableScanImpl<T>::_compare_reference_segment(std::shared_ptr<ReferenceSegment> segment,
                                                              const ScanType& scan_type, const T& search_value,
-                                                             std::shared_ptr<PosList> pos_list,
-                                                             ChunkID chunk_id, ColumnID column_id) {
-
+                                                             std::shared_ptr<PosList> pos_list, ChunkID chunk_id,
+                                                             ColumnID column_id) {
   for (const auto& row_id : *(segment->pos_list())) {
     const auto& referenced_chunk = segment->referenced_table()->get_chunk(row_id.chunk_id);
     const auto& referenced_segment = referenced_chunk.get_segment(column_id);
@@ -202,8 +198,9 @@ void TableScan::TableScanImpl<T>::_compare_reference_segment(std::shared_ptr<Ref
     auto value_segment = std::dynamic_pointer_cast<ValueSegment<T>>(referenced_segment);
     auto dictionary_segment = std::dynamic_pointer_cast<DictionarySegment<T>>(referenced_segment);
 
-    DebugAssert(value_segment != nullptr || dictionary_segment != nullptr, "Reference segment does not point to value "
-                                                                           "or dictionary segment");
+    DebugAssert(value_segment != nullptr || dictionary_segment != nullptr,
+                "Reference segment does not point to value "
+                "or dictionary segment");
     // retrieve the value from the referenced segment
     T value;
     if (value_segment != nullptr) {
@@ -232,8 +229,6 @@ std::shared_ptr<const Table> TableScan::TableScanImpl<T>::on_execute(TableScan& 
   const auto search_value = type_cast<T>(scan_operator.search_value());
   auto result_row_ids = std::make_shared<PosList>();
 
-  // TODO: check types
-
   for (ChunkID chunk_id{0}; chunk_id < input_table->chunk_count(); chunk_id++) {
     // retrieve the segment of the searched column from the input table
     const auto& current_chunk = input_table->get_chunk(chunk_id);
@@ -251,7 +246,8 @@ std::shared_ptr<const Table> TableScan::TableScanImpl<T>::on_execute(TableScan& 
       _compare_dictionary_segment(dictionary_segment, scan_operator.scan_type(), search_value, result_row_ids,
                                   chunk_id);
     } else if (reference_segment != nullptr) {
-      _compare_reference_segment(reference_segment, scan_operator.scan_type(), search_value, result_row_ids, chunk_id, scan_operator.column_id());
+      _compare_reference_segment(reference_segment, scan_operator.scan_type(), search_value, result_row_ids, chunk_id,
+                                 scan_operator.column_id());
 
       // remember the input table of the reference segment
       reference_reference_segment = true;
